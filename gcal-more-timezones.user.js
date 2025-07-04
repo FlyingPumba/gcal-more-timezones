@@ -16,6 +16,9 @@
     const ARGENTINA_TIMEZONE = 'America/Argentina/Buenos_Aires';
     const ARGENTINA_TIMEZONE_LABEL = 'Argentina';
     
+    // Global flag to prevent multiple additions
+    let argentinianTimezoneAdded = false;
+    
     // Wait for the page to load and timezone bars to be present
     function waitForTimezones() {
         console.log('🕐 Setting up MutationObserver to watch for timezone bars...');
@@ -39,6 +42,13 @@
     
     function checkAndAddArgentinianTimezone() {
         console.log('🔍 Starting timezone detection process...');
+        console.log('🚩 Global flag argentinianTimezoneAdded:', argentinianTimezoneAdded);
+        
+        // Check global flag first
+        if (argentinianTimezoneAdded) {
+            console.log('🛑 Argentina timezone already added (global flag) - skipping');
+            return;
+        }
         
         // Look for timezone holder container
         const timezoneHolder = document.querySelector('.lqYlwe');
@@ -56,6 +66,7 @@
         
         if (existingArgentineTimezone) {
             console.log('⚠️ Argentina timezone already exists (found by data attribute) - skipping addition');
+            argentinianTimezoneAdded = true; // Set flag if we find existing one
             return; // Argentina timezone already exists
         }
         
@@ -66,6 +77,7 @@
         
         if (existingByText) {
             console.log('⚠️ Argentina timezone already exists (found by text content) - skipping addition');
+            argentinianTimezoneAdded = true; // Set flag if we find existing one
             return; // Argentina timezone already exists
         }
         
@@ -97,6 +109,10 @@
         // Add the new timezone bar to the container
         console.log('➕ Adding Argentina timezone bar to container...');
         timezoneHolder.appendChild(argentinianTimezoneBar);
+        
+        // Set the global flag to prevent future additions
+        argentinianTimezoneAdded = true;
+        console.log('🚩 Set global flag argentinianTimezoneAdded = true');
         
         console.log('🎉 Successfully added Argentinian timezone bar to Google Calendar!');
         console.log('📍 Total timezone bars now:', timezoneHolder.querySelectorAll('.R6TFwe').length);
@@ -229,14 +245,26 @@
         }
     }
     
+    // Function to reset the flag when navigating to different views
+    function resetFlagIfNeeded() {
+        const timezoneHolder = document.querySelector('.lqYlwe');
+        const existingArgentineTimezone = timezoneHolder?.querySelector('[data-custom-timezone="' + ARGENTINA_TIMEZONE + '"]');
+        
+        if (!existingArgentineTimezone && argentinianTimezoneAdded) {
+            console.log('🔄 Argentina timezone no longer found, resetting flag...');
+            argentinianTimezoneAdded = false;
+        }
+    }
+    
     // Periodic check to handle dynamic content updates
     function setupPeriodicCheck() {
-        console.log('⏰ Setting up periodic check (every 5 seconds)...');
+        console.log('⏰ Setting up periodic check (every 10 seconds)...');
         
         const intervalId = setInterval(() => {
             console.log('🔄 Periodic check: Looking for timezone bars...');
+            resetFlagIfNeeded();
             checkAndAddArgentinianTimezone();
-        }, 5000); // Check every 5 seconds
+        }, 10000); // Check every 10 seconds (reduced frequency)
         
         console.log('✅ Periodic check set up with interval ID:', intervalId);
     }
