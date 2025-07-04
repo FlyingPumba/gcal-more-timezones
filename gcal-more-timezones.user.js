@@ -18,7 +18,10 @@
     
     // Wait for the page to load and timezone bars to be present
     function waitForTimezones() {
+        console.log('🕐 Setting up MutationObserver to watch for timezone bars...');
+        
         const observer = new MutationObserver(function(mutations) {
+            console.log('🔄 DOM mutation detected, checking for timezone bars...');
             checkAndAddArgentinianTimezone();
         });
         
@@ -27,17 +30,26 @@
             subtree: true
         });
         
+        console.log('👀 MutationObserver set up successfully');
+        
         // Also check immediately in case elements are already present
+        console.log('🔍 Performing initial check for timezone bars...');
         checkAndAddArgentinianTimezone();
     }
     
     function checkAndAddArgentinianTimezone() {
+        console.log('🔍 Starting timezone detection process...');
+        
         // Look for timezone holder container
         const timezoneHolder = document.querySelector('.lqYlwe');
         
         if (!timezoneHolder) {
+            console.log('❌ No timezone holder found (.lqYlwe) - calendar might not be in week/day view');
             return; // No timezone holder found, calendar might not be in week/day view
         }
+        
+        console.log('✅ Found timezone holder container:', timezoneHolder);
+        console.log('📊 Timezone holder children count:', timezoneHolder.children.length);
         
         // Check if Argentine timezone already exists
         const existingArgentineTimezone = Array.from(timezoneHolder.children).find(child => 
@@ -45,27 +57,41 @@
         );
         
         if (existingArgentineTimezone) {
+            console.log('⚠️ Argentina timezone already exists - skipping addition');
             return; // Argentina timezone already exists
         }
+        
+        console.log('✅ Argentina timezone not found - proceeding with addition');
         
         // Look for existing timezone bars
         const existingTimezoneBars = timezoneHolder.querySelectorAll('.R6TFwe');
         
+        console.log('🔍 Found', existingTimezoneBars.length, 'existing timezone bars (.R6TFwe)');
+        
         if (existingTimezoneBars.length === 0) {
+            console.log('❌ No existing timezone bars to clone from - aborting');
             return; // No existing timezone bars to clone from
         }
         
+        console.log('✅ Found timezone bars to clone from');
+        
         // Clone the first timezone bar
         const firstTimezoneBar = existingTimezoneBars[0];
+        console.log('📋 Cloning first timezone bar:', firstTimezoneBar);
+        
         const argentinianTimezoneBar = firstTimezoneBar.cloneNode(true);
+        console.log('✅ Successfully cloned timezone bar');
         
         // Update the Argentinian timezone bar
+        console.log('🔄 Updating cloned timezone bar with Argentina data...');
         updateTimezoneBar(argentinianTimezoneBar, ARGENTINA_TIMEZONE, ARGENTINA_TIMEZONE_LABEL);
         
         // Add the new timezone bar to the container
+        console.log('➕ Adding Argentina timezone bar to container...');
         timezoneHolder.appendChild(argentinianTimezoneBar);
         
-        console.log('Added Argentinian timezone bar to Google Calendar');
+        console.log('🎉 Successfully added Argentinian timezone bar to Google Calendar!');
+        console.log('📍 Total timezone bars now:', timezoneHolder.querySelectorAll('.R6TFwe').length);
     }
     
     function updateTimezoneBar(timezoneBar, timezone, label) {
